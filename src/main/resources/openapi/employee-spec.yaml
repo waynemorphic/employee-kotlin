@@ -1,0 +1,149 @@
+openapi: 3.0.3
+info:
+  title: Demo API
+  description: |-
+    This API specification is a demo for Contract-First/API-First approach in building Java based APIs
+    - POST employee into the system
+    - GET an employee's details by their employee id
+  version: 1.0.0
+servers:
+  - url: /api/v1
+tags:
+  - name: employees
+    description: Operations about employees
+paths:
+  /employee:
+    post:
+      tags:
+        - employees
+      summary: Create an employee
+      description: Creates an employee with given details
+      operationId: createEmployee
+      requestBody:
+        description: Create a new employee with an employee id, first name and last name
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EmployeeData"
+        required: true
+      responses:
+        "204":
+          description: Employee data posted successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HttpCreatedResponse"
+        "405":
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HttpInputErrorResponse"
+#      security:
+#        - employeeOpenId:
+#            - write_employee
+#            - admin
+  /employee/{employeeId}:
+    get:
+      tags:
+        - employees
+      summary: Fetch an employee's data
+      description: Fetch an employee details by their employee id
+      operationId: getEmployeeById
+      parameters:
+        - in: path
+          name: employeeId
+          description: The employee id
+          required: true
+          schema:
+            type: string
+            example: 1
+      responses:
+        "200":
+          description: Employee data fetched successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/EmployeeData"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HttpUnauthorizedErrorResponse"
+#      security:
+#        - employeeApiKey: []
+components:
+  schemas:
+    EmployeeData:
+      required:
+        - employeeId
+        - firstName
+        - lastName
+      type: object
+      properties:
+        employeeId:
+          type: integer
+          description: The employee id
+          example: 1
+        firstName:
+          type: string
+          description: The first name of the employee
+          example: John
+        lastName:
+          type: string
+          description: The last name of the employee
+          example: Doe
+    HttpCreatedResponse:
+      type: object
+      required:
+        - status
+        - message
+      properties:
+        status:
+          description: Name of the Http Status
+          type: string
+          example: CREATED
+        message:
+          description: Description of the error thrown
+          type: string
+          example: Employee data posted successfully
+    HttpInputErrorResponse:
+      type: object
+      required:
+        - status
+        - message
+      properties:
+        status:
+          description: Name of the Http Status
+          type: string
+          example: METHOD_NOT_ALLOWED
+        message:
+          description: Description of the error thrown
+          type: string
+          example: Invalid Input request
+    HttpUnauthorizedErrorResponse:
+      type: object
+      required:
+        - status
+        - message
+      properties:
+        status:
+          description: Name of the Http Status
+          type: string
+          example: UNAUTHORIZED
+        message:
+          description: Description of the error thrown
+          type: string
+          example: User not Authorized
+  securitySchemes:
+#    employeeOpenId:
+#      type: openIdConnect
+#      openIdConnectUrl: https://{keycloak_server}/auth/realms/{realm_name}/.well-known/openid-configuration
+#    employeeApiKey:
+#      type: apiKey
+#      in: header
+#      name: API_KEY
+  
